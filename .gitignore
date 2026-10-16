@@ -1,0 +1,33 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+*.swp
+
+# Node / pnpm
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
+coverage/
+
+# Rust / Tauri
+target/
+**/src-tauri/gen/
+
+# Local env
+.env
+.env.*
+!.env.example
+.claude/settings.local.json
+
+# Personal planning notes (not published)
+/private/
+
+# Private benchmark corpus
+tests/benchmarks/private/
+
+# MkDocs
+site/
+.venv/
+__pycache__/
