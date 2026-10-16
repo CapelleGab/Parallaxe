@@ -1,0 +1,11 @@
+pnpm-lock.yaml
+target/
+dist/
+coverage/
+site/
+private/
+docs/
+LICENSE
+CODE_OF_CONDUCT.md
+apps/desktop/src-tauri/gen/
+apps/desktop/src-tauri/icons/

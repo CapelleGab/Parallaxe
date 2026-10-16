@@ -1,0 +1,25 @@
+{
+  "name": "parallaxe",
+  "private": true,
+  "license": "Apache-2.0",
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @parallaxe/desktop dev",
+    "build": "pnpm --filter @parallaxe/desktop build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "coverage": "pnpm -r coverage",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "docs:serve": "uv run --no-project --with-requirements docs/requirements.txt mkdocs serve",
+    "docs:build": "uv run --no-project --with-requirements docs/requirements.txt mkdocs build --strict"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.10",
+    "prettier-plugin-tailwindcss": "^0.8.1"
+  }
+}
