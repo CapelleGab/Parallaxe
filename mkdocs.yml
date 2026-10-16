@@ -1,0 +1,126 @@
+site_name: Parallaxe
+site_description: A free, open source, local-first library for creative assets.
+site_url: https://capellegab.github.io/Parallaxe/
+repo_url: https://github.com/CapelleGab/Parallaxe
+repo_name: CapelleGab/Parallaxe
+edit_uri: edit/main/docs/
+copyright: Apache-2.0 · The Parallaxe contributors
+
+docs_dir: docs
+exclude_docs: |
+  requirements.txt
+
+theme:
+  name: material
+  logo: assets/favicon.svg
+  favicon: assets/favicon.svg
+  font: false
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-night
+        name: Switch to system preference
+  features:
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - navigation.indexes
+    - toc.follow
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.action.edit
+
+extra_css:
+  - stylesheets/extra.css
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: folder
+      fallback_to_default: true
+      reconfigure_material: true
+      reconfigure_search: true
+      languages:
+        - locale: en
+          default: true
+          name: English
+          build: true
+        - locale: fr
+          name: Français
+          build: true
+          site_description: Une bibliothèque d'assets créatifs gratuite, open source et locale.
+          nav_translations:
+            Home: Accueil
+            Guide: Guide
+            Project: Projet
+            Decisions: Décisions
+            Contributing: Contribuer
+
+nav:
+  - Home: index.md
+  - Guide:
+      - guide/index.md
+      - guide/concepts.md
+      - guide/formats.md
+      - guide/privacy.md
+  - Project:
+      - project/index.md
+      - project/vision.md
+      - project/roadmap.md
+      - project/requirements.md
+      - project/architecture.md
+      - project/security.md
+      - project/quality.md
+      - project/design.md
+      - Decisions:
+          - project/decisions/index.md
+          - project/decisions/0001-monorepo.md
+          - project/decisions/0002-no-accounts.md
+          - project/decisions/0003-license.md
+  - Contributing:
+      - contributing/index.md
+      - contributing/setup.md
+      - contributing/conventions.md
+      - contributing/documentation.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
