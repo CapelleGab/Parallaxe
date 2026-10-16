@@ -46,6 +46,18 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 ```
 
+## Coverage
+
+Coverage is collected in CI and published on [Codecov](https://codecov.io/gh/CapelleGab/Parallaxe). To check it locally:
+
+```sh
+pnpm coverage                                  # frontend, report in apps/desktop/coverage/
+cargo install cargo-llvm-cov                   # once
+cargo llvm-cov --workspace --open              # rust, HTML report
+```
+
+New code should come with tests; business rules in `parallaxe-core` are expected to be fully covered.
+
 ## Code style
 
 - Formatting is automatic: `rustfmt` for Rust, Prettier for TypeScript, CSS, JSON and Markdown.
