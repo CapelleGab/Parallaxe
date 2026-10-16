@@ -39,6 +39,8 @@ Le site est servi sur <http://127.0.0.1:8000> avec rechargement automatique.
 | `pnpm test` | Vitest |
 | `cargo test --workspace` | Tests Rust |
 | `cargo clippy --workspace --all-targets` | Lints Rust |
+| `pnpm coverage` | Rapport de couverture frontend |
+| `cargo llvm-cov --workspace --open` | Rapport de couverture Rust (nécessite `cargo-llvm-cov`) |
 | `pnpm docs:build` | Build de la doc en mode strict |
 
 ## Organisation du dépôt

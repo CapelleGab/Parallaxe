@@ -39,6 +39,8 @@ The site is served at <http://127.0.0.1:8000> with live reload.
 | `pnpm test` | Vitest |
 | `cargo test --workspace` | Rust tests |
 | `cargo clippy --workspace --all-targets` | Rust lints |
+| `pnpm coverage` | Frontend coverage report |
+| `cargo llvm-cov --workspace --open` | Rust coverage report (needs `cargo-llvm-cov`) |
 | `pnpm docs:build` | Build the documentation in strict mode |
 
 ## Repository layout
