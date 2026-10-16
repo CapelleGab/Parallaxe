@@ -1,0 +1,48 @@
+name: Bug report
+description: Something does not work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report! Security issues must go through [private reporting](https://github.com/CapelleGab/Parallaxe/security/advisories/new) instead.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Add a folder containing...
+        2. Open...
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Parallaxe version
+    validations:
+      required: true
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options: [macOS, Windows, Linux]
+      multiple: true
+    validations:
+      required: true
+  - type: input
+    id: os-version
+    attributes:
+      label: OS version and hardware
+      placeholder: macOS 26.1, Apple M3
+  - type: textarea
+    id: files
+    attributes:
+      label: Affected file formats
+      description: Format, size, source. Only attach files you are allowed to redistribute.
