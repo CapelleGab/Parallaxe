@@ -1,0 +1,24 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        informational: true
+
+flags:
+  frontend:
+    paths:
+      - apps/desktop/src/
+    carryforward: true
+  rust:
+    paths:
+      - crates/
+      - apps/desktop/src-tauri/
+    carryforward: true
+
+comment:
+  layout: "condensed_header, diff, flags"
+  require_changes: true
