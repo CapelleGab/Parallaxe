@@ -1,30 +1,46 @@
 import { invoke } from "@tauri-apps/api/core";
+import type { AppInfo } from "./bindings/AppInfo";
+import type { IpcError } from "./bindings/IpcError";
+import type { LibraryDto } from "./bindings/LibraryDto";
+import type { RootDto } from "./bindings/RootDto";
 
-export type IpcErrorCode =
-  | "INVALID_ARGUMENT"
-  | "PERMISSION_DENIED"
-  | "ROOT_OFFLINE"
-  | "ASSET_UNAVAILABLE"
-  | "FORMAT_UNSUPPORTED"
-  | "DECODER_FAILED"
-  | "RESOURCE_LIMIT"
-  | "DATABASE_ERROR"
-  | "SCAN_CANCELLED"
-  | "CONFLICT";
+export type { AppInfo, IpcError, LibraryDto, RootDto };
 
-export type IpcError = {
-  code: IpcErrorCode;
-  message: string;
-  retryable: boolean;
-  details?: Record<string, unknown>;
-};
+export function isIpcError(value: unknown): value is IpcError {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as IpcError).code === "string" &&
+    typeof (value as IpcError).message === "string"
+  );
+}
 
-export type AppInfo = {
-  name: string;
-  version: string;
-  coreVersion: string;
-};
+// Commands reject with an IpcError; anything else is a bug and surfaces as a plain Error.
+async function call<T>(command: string, args?: Record<string, unknown>): Promise<T> {
+  try {
+    return await invoke<T>(command, args);
+  } catch (error) {
+    throw isIpcError(error) ? error : new Error(String(error));
+  }
+}
 
 export function getAppInfo(): Promise<AppInfo> {
-  return invoke<AppInfo>("app_info");
+  return call("app_info");
+}
+
+export function createLibrary(name: string): Promise<LibraryDto> {
+  return call("library_create", { name });
+}
+
+export function listLibraries(): Promise<LibraryDto[]> {
+  return call("library_list");
+}
+
+export function listRoots(libraryId: string): Promise<RootDto[]> {
+  return call("root_list", { libraryId });
+}
+
+/** Opens the native folder picker. Resolves to `null` when the user cancels. */
+export function addRoot(libraryId: string): Promise<RootDto | null> {
+  return call("library_add_root", { libraryId });
 }
