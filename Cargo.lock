@@ -2179,6 +2179,7 @@ dependencies = [
 name = "parallaxe-catalog"
 version = "0.0.0"
 dependencies = [
+ "parallaxe-core",
  "rusqlite",
  "tempfile",
  "thiserror 2.0.21",

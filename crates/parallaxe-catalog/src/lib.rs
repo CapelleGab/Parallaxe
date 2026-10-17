@@ -2,7 +2,9 @@
 
 mod catalog;
 mod error;
+mod libraries;
 mod migrations;
+mod rows;
 
 #[cfg(test)]
 mod schema_tests;

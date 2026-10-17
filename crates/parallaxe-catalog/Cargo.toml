@@ -9,6 +9,7 @@ repository.workspace = true
 authors.workspace = true
 
 [dependencies]
+parallaxe-core.workspace = true
 rusqlite.workspace = true
 thiserror.workspace = true
 
