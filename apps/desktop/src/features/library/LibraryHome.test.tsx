@@ -14,7 +14,7 @@ vi.mock("../../ipc/client", async (importOriginal) => ({
 const library: LibraryDto = { id: "lib-1", name: "Game assets", createdAt: 0 };
 
 function root(id: string, path: string, status: RootDto["status"] = "available"): RootDto {
-  return { id, libraryId: library.id, path, status, lastSeenAt: null };
+  return { id, libraryId: library.id, path, status, isPrimary: false, lastSeenAt: null };
 }
 
 describe("LibraryHome", () => {

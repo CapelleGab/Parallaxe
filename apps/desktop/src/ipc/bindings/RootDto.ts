@@ -5,4 +5,4 @@ export type RootDto = { id: string, libraryId: string,
 /**
  * For display only; the UI always refers to a root by its id.
  */
-path: string, status: RootStatusDto, lastSeenAt: number | null, };
+path: string, status: RootStatusDto, isPrimary: boolean, lastSeenAt: number | null, };

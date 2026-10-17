@@ -22,6 +22,8 @@ pub struct Root {
     pub library_id: LibraryId,
     pub path: PathBuf,
     pub status: RootStatus,
+    /// The library folder, as opposed to an external folder.
+    pub is_primary: bool,
     pub last_seen_at: Option<i64>,
     pub created_at: i64,
 }

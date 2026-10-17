@@ -40,6 +40,7 @@ pub struct RootDto {
     /// For display only; the UI always refers to a root by its id.
     pub path: String,
     pub status: RootStatusDto,
+    pub is_primary: bool,
     pub last_seen_at: Option<i64>,
 }
 
@@ -53,6 +54,7 @@ impl From<Root> for RootDto {
                 RootStatus::Available => RootStatusDto::Available,
                 RootStatus::Offline => RootStatusDto::Offline,
             },
+            is_primary: root.is_primary,
             last_seen_at: root.last_seen_at,
         }
     }
@@ -73,6 +75,7 @@ mod tests {
             library_id: LibraryId::new(),
             path: PathBuf::from("/data/assets"),
             status: RootStatus::Offline,
+            is_primary: true,
             last_seen_at: Some(42),
             created_at: 1,
         };
@@ -81,6 +84,7 @@ mod tests {
         assert_eq!(json["path"], "/data/assets");
         assert_eq!(json["status"], "offline");
         assert_eq!(json["lastSeenAt"], 42);
+        assert_eq!(json["isPrimary"], true);
         assert!(json.get("libraryId").is_some());
     }
 }

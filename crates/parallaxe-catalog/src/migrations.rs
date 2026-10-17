@@ -2,7 +2,10 @@ use rusqlite::Connection;
 
 use crate::CatalogError;
 
-const MIGRATIONS: &[&str] = &[include_str!("../migrations/0001_initial.sql")];
+const MIGRATIONS: &[&str] = &[
+    include_str!("../migrations/0001_initial.sql"),
+    include_str!("../migrations/0002_primary_root.sql"),
+];
 
 pub const SCHEMA_VERSION: usize = MIGRATIONS.len();
 
@@ -92,6 +95,27 @@ mod tests {
         assert!(apply(&mut conn, &broken).is_err());
         assert_eq!(schema_version(&conn).unwrap(), 1);
         assert!(!table_exists(&conn, "c"));
+    }
+
+    #[test]
+    fn upgrades_a_v1_catalog_without_losing_roots() {
+        let mut conn = Connection::open_in_memory().unwrap();
+        apply(&mut conn, &MIGRATIONS[..1]).unwrap();
+        conn.execute_batch(
+            "INSERT INTO libraries VALUES ('lib', 'Games', 0, 0);
+             INSERT INTO roots (id, library_id, path, created_at) VALUES ('root', 'lib', x'2f61', 0);",
+        )
+        .unwrap();
+
+        apply(&mut conn, MIGRATIONS).unwrap();
+        let primary: bool = conn
+            .query_row(
+                "SELECT is_primary FROM roots WHERE id = 'root'",
+                [],
+                |row| row.get(0),
+            )
+            .unwrap();
+        assert!(!primary);
     }
 
     #[test]
