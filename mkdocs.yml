@@ -97,6 +97,7 @@ nav:
       - contributing/index.md
       - contributing/setup.md
       - contributing/conventions.md
+      - contributing/testing.md
       - contributing/documentation.md
 
 markdown_extensions:
