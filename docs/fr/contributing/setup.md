@@ -4,7 +4,7 @@
 
 | Outil | Version | Usage |
 |---|---|---|
-| [Rust](https://rustup.rs/) | stable | Cœur natif et shell Tauri |
+| [Rust](https://rustup.rs/) | fixée dans `rust-toolchain.toml`, installée automatiquement | Cœur natif et shell Tauri |
 | [Node.js](https://nodejs.org/) | 22+ | Outillage frontend |
 | [pnpm](https://pnpm.io/) | 10+ | Workspace JavaScript |
 | [Prérequis Tauri](https://v2.tauri.app/start/prerequisites/) | — | Bibliothèques système par OS (WebView2, WebKitGTK…) |

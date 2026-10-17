@@ -25,7 +25,7 @@ These come from the project's core principles and are checked in every review:
 
 ## Development setup
 
-Prerequisites: [Rust](https://rustup.rs/) (stable), [Node.js](https://nodejs.org/) 22+, [pnpm](https://pnpm.io/) 10+, the [Tauri 2 system dependencies](https://v2.tauri.app/start/prerequisites/) for your OS, and [uv](https://docs.astral.sh/uv/) for the documentation site.
+Prerequisites: [Rust](https://rustup.rs/) (the version pinned in `rust-toolchain.toml` is installed automatically), [Node.js](https://nodejs.org/) 22+, [pnpm](https://pnpm.io/) 10+, the [Tauri 2 system dependencies](https://v2.tauri.app/start/prerequisites/) for your OS, and [uv](https://docs.astral.sh/uv/) for the documentation site.
 
 ```sh
 pnpm install

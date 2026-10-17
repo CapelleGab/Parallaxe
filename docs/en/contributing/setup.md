@@ -4,7 +4,7 @@
 
 | Tool | Version | Used for |
 |---|---|---|
-| [Rust](https://rustup.rs/) | stable | Native core and Tauri shell |
+| [Rust](https://rustup.rs/) | pinned in `rust-toolchain.toml`, installed automatically | Native core and Tauri shell |
 | [Node.js](https://nodejs.org/) | 22+ | Frontend tooling |
 | [pnpm](https://pnpm.io/) | 10+ | JavaScript workspace |
 | [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/) | — | System libraries per OS (WebView2, WebKitGTK…) |
