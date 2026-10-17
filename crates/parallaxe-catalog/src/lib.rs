@@ -1,6 +1,7 @@
 //! SQLite catalog of Parallaxe. The only crate allowed to touch the database file.
 
 mod catalog;
+mod collections;
 mod error;
 mod libraries;
 mod migrations;
