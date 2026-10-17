@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@fontsource-variable/bricolage-grotesque/standard.css";
 @import "./tokens.css";
 
 @theme inline {
@@ -18,6 +19,7 @@
   --font-sans:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", Ubuntu, Cantarell,
     sans-serif;
+  --font-display: "Bricolage Grotesque Variable", var(--font-sans);
   --font-mono:
     ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
 

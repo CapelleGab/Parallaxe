@@ -1,33 +1,36 @@
+/* Neutral greys on purpose: assets must be judged on an untinted background. */
 :root {
   color-scheme: light dark;
 
-  --bg-canvas: #f5f6f8;
-  --bg-surface: #ffffff;
-  --bg-elevated: #e9edf2;
-  --fg-primary: #18202a;
-  --fg-secondary: #4b5665;
-  --border-default: #cad2db;
-  --accent: #235ac3;
+  --bg-canvas: #ececec;
+  --bg-surface: #f7f7f7;
+  --bg-elevated: #e2e2e2;
+  --fg-primary: #1a1a1a;
+  --fg-secondary: #5e5e5e;
+  --border-default: #c9c9c9;
+  --accent: #3452d6;
   --fg-on-accent: #ffffff;
-  --success: #137a46;
-  --warning: #885800;
-  --danger: #bc3333;
-  --focus-ring: #1455c8;
+  --success: #116b3e;
+  --warning: #8a5a00;
+  --danger: #a83232;
+  --focus-ring: #2142c9;
+  --pane-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.25);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-canvas: #111418;
-    --bg-surface: #1a1f25;
-    --bg-elevated: #252c34;
-    --fg-primary: #f0f3f7;
-    --fg-secondary: #b9c2cc;
-    --border-default: #3a4552;
-    --accent: #8db8ff;
-    --fg-on-accent: #111418;
-    --success: #73d6a0;
-    --warning: #f6c66a;
-    --danger: #ff9c99;
-    --focus-ring: #b1d0ff;
+    --bg-canvas: #1b1b1b;
+    --bg-surface: #232323;
+    --bg-elevated: #2e2e2e;
+    --fg-primary: #ededed;
+    --fg-secondary: #9e9e9e;
+    --border-default: #3a3a3a;
+    --accent: #8a9dff;
+    --fg-on-accent: #0e1330;
+    --success: #6fd39b;
+    --warning: #f2c46b;
+    --danger: #ff9a94;
+    --focus-ring: #aebbff;
+    --pane-shadow: 0 30px 60px -20px rgb(0 0 0 / 0.6);
   }
 }
