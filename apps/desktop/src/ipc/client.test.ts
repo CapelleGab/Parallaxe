@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   addRoot,
-  createLibrary,
+  createLibraryWithFolder,
   errorMessage,
   getAppInfo,
   isIpcError,
@@ -28,7 +28,7 @@ describe("ipc client", () => {
 
   it.each([
     ["app_info", () => getAppInfo(), undefined],
-    ["library_create", () => createLibrary("Games"), { name: "Games" }],
+    ["library_create_with_folder", () => createLibraryWithFolder("Games"), { name: "Games" }],
     ["library_list", () => listLibraries(), undefined],
     ["root_list", () => listRoots("lib-1"), { libraryId: "lib-1" }],
     ["library_add_root", () => addRoot("lib-1"), { libraryId: "lib-1" }],
@@ -39,7 +39,7 @@ describe("ipc client", () => {
 
   it("passes backend errors through untouched", async () => {
     invoke.mockRejectedValue(conflict);
-    await expect(createLibrary("Games")).rejects.toEqual(conflict);
+    await expect(createLibraryWithFolder("Games")).rejects.toEqual(conflict);
   });
 
   it("wraps unexpected rejections in an Error", async () => {

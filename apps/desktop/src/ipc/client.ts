@@ -28,8 +28,9 @@ export function getAppInfo(): Promise<AppInfo> {
   return call("app_info");
 }
 
-export function createLibrary(name: string): Promise<LibraryDto> {
-  return call("library_create", { name });
+/** Opens the native folder picker. Resolves to `null` when the user cancels. */
+export function createLibraryWithFolder(name: string): Promise<LibraryDto | null> {
+  return call("library_create_with_folder", { name });
 }
 
 export function listLibraries(): Promise<LibraryDto[]> {
@@ -40,7 +41,7 @@ export function listRoots(libraryId: string): Promise<RootDto[]> {
   return call("root_list", { libraryId });
 }
 
-/** Opens the native folder picker. Resolves to `null` when the user cancels. */
+/** Adds an external folder through the native picker. Resolves to `null` when cancelled. */
 export function addRoot(libraryId: string): Promise<RootDto | null> {
   return call("library_add_root", { libraryId });
 }

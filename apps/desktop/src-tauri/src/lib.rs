@@ -17,7 +17,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::app::app_info,
-            commands::library::library_create,
+            commands::library::library_create_with_folder,
             commands::library::library_list,
             commands::library::library_add_root,
             commands::library::root_list,

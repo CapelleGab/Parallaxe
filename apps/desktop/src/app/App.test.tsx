@@ -6,7 +6,7 @@ import { App } from "./App";
 
 const ipc = vi.hoisted(() => ({
   listLibraries: vi.fn(),
-  createLibrary: vi.fn(),
+  createLibraryWithFolder: vi.fn(),
   listRoots: vi.fn(),
   addRoot: vi.fn(),
 }));
@@ -30,19 +30,31 @@ describe("App", () => {
 
     expect(await screen.findByRole("heading", { name: "Create your library" })).toBeInTheDocument();
     expect(screen.getByText(/never moves, renames or modifies/)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Create library" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Choose folder…" })).toBeDisabled();
   });
 
   it("creates the library and opens it", async () => {
     ipc.listLibraries.mockResolvedValue([]);
-    ipc.createLibrary.mockResolvedValue(games);
+    ipc.createLibraryWithFolder.mockResolvedValue(games);
     render(<App />);
 
     await userEvent.type(await screen.findByLabelText("Library name"), "Game assets");
-    await userEvent.click(screen.getByRole("button", { name: "Create library" }));
+    await userEvent.click(screen.getByRole("button", { name: "Choose folder…" }));
 
-    expect(ipc.createLibrary).toHaveBeenCalledWith("Game assets");
+    expect(ipc.createLibraryWithFolder).toHaveBeenCalledWith("Game assets");
     expect(await screen.findByRole("heading", { name: "Game assets" })).toBeInTheDocument();
+  });
+
+  it("stays on the form when the folder picker is cancelled", async () => {
+    ipc.listLibraries.mockResolvedValue([]);
+    ipc.createLibraryWithFolder.mockResolvedValue(null);
+    render(<App />);
+
+    await userEvent.type(await screen.findByLabelText("Library name"), "Game assets");
+    await userEvent.click(screen.getByRole("button", { name: "Choose folder…" }));
+
+    expect(await screen.findByLabelText("Library name")).toHaveValue("Game assets");
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("shows why a library could not be created", async () => {
@@ -52,11 +64,11 @@ describe("App", () => {
       retryable: false,
     };
     ipc.listLibraries.mockResolvedValue([]);
-    ipc.createLibrary.mockRejectedValue(invalid);
+    ipc.createLibraryWithFolder.mockRejectedValue(invalid);
     render(<App />);
 
     await userEvent.type(await screen.findByLabelText("Library name"), "x");
-    await userEvent.click(screen.getByRole("button", { name: "Create library" }));
+    await userEvent.click(screen.getByRole("button", { name: "Choose folder…" }));
 
     expect(await screen.findByText("name is longer than 64 characters")).toBeInTheDocument();
     expect(screen.getByLabelText("Library name")).toHaveAttribute("aria-invalid", "true");

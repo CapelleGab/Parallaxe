@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { AppButton } from "../../components/AppButton";
 import { Logo } from "../../components/Logo";
 import { TextInput } from "../../components/TextInput";
-import { createLibrary, errorMessage, type LibraryDto } from "../../ipc/client";
+import { createLibraryWithFolder, errorMessage, type LibraryDto } from "../../ipc/client";
 
 const MAX_NAME_CHARS = 64;
 
@@ -20,7 +20,8 @@ export function FirstRun({ onCreated }: FirstRunProps) {
     setPending(true);
     setError(null);
     try {
-      onCreated(await createLibrary(name));
+      const library = await createLibraryWithFolder(name);
+      if (library) onCreated(library);
     } catch (failure) {
       setError(errorMessage(failure));
     } finally {
@@ -35,6 +36,10 @@ export function FirstRun({ onCreated }: FirstRunProps) {
         <div className="space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">Create your library</h1>
           <p className="text-fg-muted">
+            Name it, then choose the folder where you keep your assets. You can create a new one
+            from the folder picker.
+          </p>
+          <p className="text-xs text-fg-muted">
             Parallaxe indexes your folders. It never moves, renames or modifies your files.
           </p>
         </div>
@@ -50,7 +55,7 @@ export function FirstRun({ onCreated }: FirstRunProps) {
             onChange={(event) => setName(event.target.value)}
           />
           <AppButton type="submit" loading={pending} disabled={name.trim() === ""}>
-            Create library
+            Choose folder…
           </AppButton>
         </form>
       </div>
