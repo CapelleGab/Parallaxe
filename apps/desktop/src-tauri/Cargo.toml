@@ -20,6 +20,7 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 parallaxe-catalog.workspace = true
 parallaxe-core = { workspace = true, features = ["ts"] }
+parallaxe-indexer.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 tauri = { version = "2", features = [] }

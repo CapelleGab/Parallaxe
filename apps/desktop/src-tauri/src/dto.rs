@@ -1,8 +1,11 @@
 //! Shapes sent to the WebView. Internal types never cross the IPC boundary directly.
 
+use parallaxe_core::asset::{Asset, AssetKind, AssetStatus};
 use parallaxe_core::library::{Library, Root, RootStatus};
 use serde::Serialize;
 use ts_rs::TS;
+
+use crate::scan::{ScanCounts, ScanEnd};
 
 #[derive(Debug, Serialize, PartialEq, Eq, TS)]
 #[ts(export)]
@@ -60,6 +63,98 @@ impl From<Root> for RootDto {
     }
 }
 
+#[derive(Debug, Serialize, PartialEq, Eq, TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub struct AssetDto {
+    pub id: String,
+    pub root_id: String,
+    /// Relative to its root, for display.
+    pub rel_path: String,
+    pub filename: String,
+    pub ext: String,
+    #[ts(type = "\"image\" | \"audio\" | \"video\" | \"model3d\" | \"other\"")]
+    pub kind: AssetKind,
+    pub size_bytes: u64,
+    pub mtime_ms: Option<i64>,
+    #[ts(type = "\"available\" | \"missing\" | \"root_offline\" | \"unsupported\" | \"error\"")]
+    pub status: AssetStatus,
+    pub is_favorite: bool,
+}
+
+impl From<Asset> for AssetDto {
+    fn from(asset: Asset) -> Self {
+        Self {
+            id: asset.id.to_string(),
+            root_id: asset.root_id.to_string(),
+            rel_path: asset.rel_path.to_string_lossy().into_owned(),
+            filename: asset.filename,
+            ext: asset.ext,
+            kind: asset.kind,
+            size_bytes: asset.size_bytes,
+            mtime_ms: asset.mtime_ms,
+            status: asset.status,
+            is_favorite: asset.is_favorite,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, PartialEq, Eq, TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub struct AssetPageDto {
+    pub total: usize,
+    pub items: Vec<AssetDto>,
+}
+
+#[derive(Debug, Clone, Serialize, PartialEq, Eq, TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase")]
+pub struct ScanProgressDto {
+    pub files: u64,
+    pub skipped: u64,
+    pub unreadable: u64,
+}
+
+impl From<ScanCounts> for ScanProgressDto {
+    fn from(counts: ScanCounts) -> Self {
+        Self {
+            files: counts.files,
+            skipped: counts.skipped,
+            unreadable: counts.unreadable,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, PartialEq, Eq, TS)]
+#[ts(export)]
+#[serde(rename_all = "camelCase", tag = "outcome")]
+pub enum ScanResultDto {
+    Completed {
+        progress: ScanProgressDto,
+        missing: usize,
+    },
+    Cancelled {
+        progress: ScanProgressDto,
+    },
+    Offline,
+}
+
+impl From<ScanEnd> for ScanResultDto {
+    fn from(end: ScanEnd) -> Self {
+        match end {
+            ScanEnd::Completed { counts, missing } => Self::Completed {
+                progress: counts.into(),
+                missing,
+            },
+            ScanEnd::Cancelled { counts } => Self::Cancelled {
+                progress: counts.into(),
+            },
+            ScanEnd::Offline => Self::Offline,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::path::PathBuf;
@@ -86,5 +181,29 @@ mod tests {
         assert_eq!(json["lastSeenAt"], 42);
         assert_eq!(json["isPrimary"], true);
         assert!(json.get("libraryId").is_some());
+    }
+
+    #[test]
+    fn serializes_scan_results_with_an_outcome_tag() {
+        let done = ScanResultDto::from(ScanEnd::Completed {
+            counts: ScanCounts {
+                files: 3,
+                skipped: 1,
+                unreadable: 0,
+            },
+            missing: 2,
+        });
+        assert_eq!(
+            serde_json::to_value(done).unwrap(),
+            serde_json::json!({
+                "outcome": "completed",
+                "progress": { "files": 3, "skipped": 1, "unreadable": 0 },
+                "missing": 2
+            })
+        );
+        assert_eq!(
+            serde_json::to_value(ScanResultDto::from(ScanEnd::Offline)).unwrap(),
+            serde_json::json!({ "outcome": "offline" })
+        );
     }
 }

@@ -1,5 +1,6 @@
 pub mod app;
 pub mod library;
+pub mod scan;
 
 use std::str::FromStr;
 

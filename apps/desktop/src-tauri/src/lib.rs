@@ -1,5 +1,6 @@
 mod commands;
 mod dto;
+mod scan;
 mod state;
 
 use tauri::Manager;
@@ -21,6 +22,9 @@ pub fn run() {
             commands::library::library_list,
             commands::library::library_add_root,
             commands::library::root_list,
+            commands::scan::scan_start,
+            commands::scan::scan_cancel,
+            commands::scan::asset_list,
         ])
         .run(tauri::generate_context!())
         .expect("failed to run Parallaxe");

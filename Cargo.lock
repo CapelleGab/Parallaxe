@@ -2203,6 +2203,7 @@ version = "0.0.0"
 dependencies = [
  "parallaxe-catalog",
  "parallaxe-core",
+ "parallaxe-indexer",
  "serde",
  "serde_json",
  "tauri",
