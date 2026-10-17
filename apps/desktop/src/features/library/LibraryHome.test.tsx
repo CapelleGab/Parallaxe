@@ -49,11 +49,12 @@ describe("LibraryHome", () => {
     const items = within(await screen.findByRole("list", { name: "Folders" })).getAllByRole(
       "listitem",
     );
-    expect(items[0]).toHaveTextContent("Library folder");
-    expect(items[0]).toHaveTextContent("/data/textures");
+    expect(items[0]).toHaveTextContent("textures");
+    expect(items[0]).toHaveTextContent("Library folder in /data/");
     expect(items[0]).toHaveTextContent("Available");
-    expect(items[1]).toHaveTextContent("External folder");
+    expect(items[1]).toHaveTextContent("External folder in /Volumes/External/");
     expect(items[1]).toHaveTextContent("Offline");
+    expect(screen.getByText("2 folders")).toBeInTheDocument();
   });
 
   it("adds the folder picked by the user", async () => {
@@ -64,7 +65,9 @@ describe("LibraryHome", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add external folder" }));
 
     expect(ipc.addRoot).toHaveBeenCalledWith("lib-1");
-    expect(await screen.findByText("/data/textures")).toBeInTheDocument();
+    const list = await screen.findByRole("list", { name: "Folders" });
+    expect(within(list).getByText("textures")).toBeInTheDocument();
+    expect(screen.getByText("1 folder")).toBeInTheDocument();
     expect(
       screen.queryByRole("heading", { name: "Add your first folder" }),
     ).not.toBeInTheDocument();
@@ -95,7 +98,9 @@ describe("LibraryHome", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Add external folder" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("This item already exists.");
-    expect(screen.getByText("/data")).toBeInTheDocument();
+    expect(
+      within(screen.getByRole("list", { name: "Folders" })).getByText("data"),
+    ).toBeInTheDocument();
   });
 
   it("reports when folders cannot be loaded", async () => {
@@ -103,5 +108,17 @@ describe("LibraryHome", () => {
     render(<LibraryHome library={library} />);
 
     expect(await screen.findByRole("alert")).toHaveTextContent("Something went wrong");
+  });
+
+  it("shows folders in the sidebar and flags offline ones", async () => {
+    ipc.listRoots.mockResolvedValue([
+      root("r1", "/data/textures", "available", true),
+      root("r2", "/Volumes/External/sounds", "offline"),
+    ]);
+    render(<LibraryHome library={library} />);
+
+    const sidebar = await screen.findByRole("navigation", { name: "Library folders" });
+    expect(within(sidebar).getByText("textures")).toBeInTheDocument();
+    expect(within(sidebar).getByText("sounds").parentElement).toHaveTextContent("Offline");
   });
 });

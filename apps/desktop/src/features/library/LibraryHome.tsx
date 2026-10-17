@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { AppButton } from "../../components/AppButton";
 import { ErrorPanel } from "../../components/ErrorPanel";
+import { PlusIcon } from "../../components/icons";
 import { addRoot, errorMessage, listRoots, type LibraryDto, type RootDto } from "../../ipc/client";
+import { cx } from "../../lib/cx";
+import { isMac } from "../../lib/platform";
+import { ContactSheet } from "./ContactSheet";
 import { RootList } from "./RootList";
+import { SidebarFolders } from "./SidebarFolders";
 
 type LibraryHomeProps = {
   library: LibraryDto;
@@ -36,34 +41,75 @@ export function LibraryHome({ library }: LibraryHomeProps) {
     }
   }
 
-  const addButton = (
-    <AppButton variant="secondary" onClick={add} loading={adding}>
-      Add external folder
-    </AppButton>
-  );
+  const folderCount = roots?.length ?? 0;
 
   return (
-    <main className="flex h-full flex-col">
-      <header className="flex h-12 shrink-0 items-center justify-between gap-4 border-b border-border px-4">
-        <h1 className="truncate text-base font-semibold" title={library.name}>
+    <div className="flex h-full">
+      <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-canvas">
+        <div data-tauri-drag-region className={cx("shrink-0", isMac ? "h-14" : "h-4")} />
+        <p className="truncate px-5 pb-4 font-display text-lg font-semibold" title={library.name}>
           {library.name}
-        </h1>
-        {roots && roots.length > 0 && addButton}
-      </header>
+        </p>
+        {roots && <SidebarFolders roots={roots} />}
+        <div className="mt-auto p-3">
+          <AppButton
+            variant="secondary"
+            onClick={add}
+            loading={adding}
+            className="w-full justify-start"
+          >
+            <PlusIcon className="size-4" />
+            Add external folder
+          </AppButton>
+        </div>
+      </aside>
 
-      <section className="flex flex-1 flex-col gap-4 overflow-auto p-4">
-        {error && <ErrorPanel message={error} />}
-        {roots && roots.length === 0 && (
-          <div className="m-auto flex max-w-sm flex-col items-center gap-3 text-center">
-            <h2 className="text-lg font-semibold">Add your first folder</h2>
-            <p className="text-fg-muted">
-              Parallaxe will index it where it is. Nothing is copied or moved.
-            </p>
-            {addButton}
-          </div>
-        )}
-        {roots && roots.length > 0 && <RootList roots={roots} />}
-      </section>
-    </main>
+      <main className="flex min-w-0 flex-1 flex-col bg-surface">
+        <div data-tauri-drag-region className="h-14 shrink-0" />
+        <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 overflow-auto px-10 pb-10">
+          <header>
+            <h1 className="font-display text-5xl font-semibold tracking-tight [font-stretch:85%]">
+              {library.name}
+            </h1>
+            {roots && (
+              <p className="mt-1 text-fg-muted">
+                {folderCount === 1 ? "1 folder" : `${folderCount} folders`}
+              </p>
+            )}
+          </header>
+
+          {error && <ErrorPanel message={error} />}
+
+          {roots && roots.length === 0 && (
+            <div className="flex flex-col items-start gap-3">
+              <h2 className="font-display text-xl font-semibold">Add your first folder</h2>
+              <p className="max-w-md text-fg-muted">
+                Parallaxe will index it where it is. Nothing is copied or moved.
+              </p>
+            </div>
+          )}
+
+          {roots && roots.length > 0 && <RootList roots={roots} />}
+
+          {roots && roots.length > 0 && (
+            <section
+              aria-labelledby="assets-heading"
+              className="flex flex-col gap-3 border-t border-border pt-8"
+            >
+              <h2 id="assets-heading" className="font-display text-xl font-semibold">
+                Nothing indexed yet
+              </h2>
+              <p className="max-w-md text-fg-muted">
+                Your folders are saved. Browsing and search arrive with indexing, in the next
+                version of Parallaxe.
+              </p>
+              <div className="mt-4">
+                <ContactSheet />
+              </div>
+            </section>
+          )}
+        </div>
+      </main>
+    </div>
   );
 }
