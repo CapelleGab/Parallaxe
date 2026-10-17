@@ -17,26 +17,27 @@ Three verbs structure the product: **Discover → Inspect → Reuse**. "Edit" jo
 
 ## Color tokens
 
-Components use semantic tokens only, never raw hex values. Pairs are checked against WCAG 2.2 (≥ 4.5:1 for text, ≥ 3:1 for essential graphics). Color never replaces a state label.
+Greys are strictly neutral: creators judge an asset's colors against them, so the chrome must not tint them. Components use semantic tokens only, never raw hex values. Pairs are checked against WCAG 2.2 (≥ 4.5:1 for text, ≥ 3:1 for essential graphics). Color never replaces a state label.
 
 | Token | Dark | Light | Usage |
 |---|---|---|---|
-| `bg-canvas` | `#111418` | `#F5F6F8` | Outer surface |
-| `bg-surface` | `#1A1F25` | `#FFFFFF` | Work surfaces |
-| `bg-elevated` | `#252C34` | `#E9EDF2` | Menus, popovers, hover |
-| `fg-primary` | `#F0F3F7` | `#18202A` | Main content |
-| `fg-secondary` | `#B9C2CC` | `#4B5665` | Secondary information |
-| `border-default` | `#3A4552` | `#CAD2DB` | Separators |
-| `accent` | `#8DB8FF` | `#235AC3` | Selection, primary action |
-| `fg-on-accent` | `#111418` | `#FFFFFF` | Text on accent |
-| `success` | `#73D6A0` | `#137A46` | Success |
-| `warning` | `#F6C66A` | `#885800` | Recoverable warning |
-| `danger` | `#FF9C99` | `#BC3333` | Risk, destruction |
-| `focus-ring` | `#B1D0FF` | `#1455C8` | Keyboard focus |
+| `bg-canvas` | `#1B1B1B` | `#ECECEC` | Window, sidebar |
+| `bg-surface` | `#232323` | `#F7F7F7` | Main work area |
+| `bg-elevated` | `#2E2E2E` | `#E2E2E2` | Panes, menus, hover |
+| `fg-primary` | `#EDEDED` | `#1A1A1A` | Main content |
+| `fg-secondary` | `#9E9E9E` | `#5E5E5E` | Secondary information |
+| `border-default` | `#3A3A3A` | `#C9C9C9` | Separators |
+| `accent` | `#8A9DFF` | `#3452D6` | Selection, primary action |
+| `fg-on-accent` | `#0E1330` | `#FFFFFF` | Text on accent |
+| `success` | `#6FD39B` | `#116B3E` | Success |
+| `warning` | `#F2C46B` | `#8A5A00` | Recoverable warning |
+| `danger` | `#FF9A94` | `#A83232` | Risk, destruction |
+| `focus-ring` | `#AEBBFF` | `#2142C9` | Keyboard focus |
 
 ## Typography and spacing
 
-- **System fonts** (`-apple-system`, Segoe UI, Linux sans-serif), no downloaded font.
+- **System fonts** (`-apple-system`, Segoe UI, Linux sans-serif) for the interface: native rendering at small sizes.
+- **Bricolage Grotesque** for display headings only, bundled with the app (no network). Its optical size and width axes give large titles their character.
 - Scale: 12, 13, **14 (base)**, 16, 20, 24, 30 px. Line height ≥ 1.4. Weights 400–700.
 - **Tabular numbers** with localized grouping and explicit units (`42,680 triangles`, `29.4 MiB`).
 - Long file names are truncated visually only; the full name stays in tooltips, copy and assistive technologies.

@@ -17,26 +17,27 @@ Trois verbes structurent le produit : **Découvrir → Inspecter → Réutiliser
 
 ## Tokens de couleur
 
-Les composants n'utilisent que des tokens sémantiques, jamais de valeurs hexadécimales brutes. Les paires sont vérifiées selon WCAG 2.2 (≥ 4,5:1 pour le texte, ≥ 3:1 pour les éléments graphiques essentiels). La couleur ne remplace jamais un libellé d'état.
+Les gris sont strictement neutres : les créateurs jugent les couleurs d'un asset sur eux, l'interface ne doit donc pas les teinter. Les composants n'utilisent que des tokens sémantiques, jamais de valeurs hexadécimales brutes. Les paires sont vérifiées selon WCAG 2.2 (≥ 4,5:1 pour le texte, ≥ 3:1 pour les éléments graphiques essentiels). La couleur ne remplace jamais un libellé d'état.
 
 | Token | Sombre | Clair | Usage |
 |---|---|---|---|
-| `bg-canvas` | `#111418` | `#F5F6F8` | Surface extérieure |
-| `bg-surface` | `#1A1F25` | `#FFFFFF` | Surfaces de travail |
-| `bg-elevated` | `#252C34` | `#E9EDF2` | Menus, popovers, survol |
-| `fg-primary` | `#F0F3F7` | `#18202A` | Contenu principal |
-| `fg-secondary` | `#B9C2CC` | `#4B5665` | Informations secondaires |
-| `border-default` | `#3A4552` | `#CAD2DB` | Séparateurs |
-| `accent` | `#8DB8FF` | `#235AC3` | Sélection, action principale |
-| `fg-on-accent` | `#111418` | `#FFFFFF` | Texte sur l'accent |
-| `success` | `#73D6A0` | `#137A46` | Succès |
-| `warning` | `#F6C66A` | `#885800` | Avertissement réparable |
-| `danger` | `#FF9C99` | `#BC3333` | Risque, destruction |
-| `focus-ring` | `#B1D0FF` | `#1455C8` | Focus clavier |
+| `bg-canvas` | `#1B1B1B` | `#ECECEC` | Fenêtre, barre latérale |
+| `bg-surface` | `#232323` | `#F7F7F7` | Zone de travail principale |
+| `bg-elevated` | `#2E2E2E` | `#E2E2E2` | Panneaux, menus, survol |
+| `fg-primary` | `#EDEDED` | `#1A1A1A` | Contenu principal |
+| `fg-secondary` | `#9E9E9E` | `#5E5E5E` | Informations secondaires |
+| `border-default` | `#3A3A3A` | `#C9C9C9` | Séparateurs |
+| `accent` | `#8A9DFF` | `#3452D6` | Sélection, action principale |
+| `fg-on-accent` | `#0E1330` | `#FFFFFF` | Texte sur l'accent |
+| `success` | `#6FD39B` | `#116B3E` | Succès |
+| `warning` | `#F2C46B` | `#8A5A00` | Avertissement réparable |
+| `danger` | `#FF9A94` | `#A83232` | Risque, destruction |
+| `focus-ring` | `#AEBBFF` | `#2142C9` | Focus clavier |
 
 ## Typographie et espacements
 
-- **Polices système** (`-apple-system`, Segoe UI, sans-serif Linux), aucune police téléchargée.
+- **Polices système** (`-apple-system`, Segoe UI, sans-serif Linux) pour l'interface : rendu natif aux petites tailles.
+- **Bricolage Grotesque** pour les grands titres uniquement, embarquée dans l'app (aucun réseau). Ses axes de taille optique et de largeur donnent leur caractère aux titres.
 - Échelle : 12, 13, **14 (base)**, 16, 20, 24, 30 px. Interligne ≥ 1,4. Graisses 400–700.
 - **Chiffres tabulaires** avec groupement localisé et unités explicites (`42 680 triangles`, `29,4 Mio`).
 - Les noms de fichiers longs sont tronqués visuellement seulement ; le nom complet reste dans l'infobulle, la copie et les technologies d'assistance.
