@@ -1,5 +1,6 @@
 //! SQLite catalog of Parallaxe. The only crate allowed to touch the database file.
 
+mod assets;
 mod catalog;
 mod collections;
 mod error;
@@ -13,6 +14,7 @@ mod schema_tests;
 #[cfg(test)]
 mod test_support;
 
+pub use assets::{ScanOutcome, ScanSession};
 pub use catalog::Catalog;
 pub use error::CatalogError;
 pub use migrations::SCHEMA_VERSION;
