@@ -42,16 +42,22 @@ pub enum ScanError {
     RootUnavailable,
 }
 
+type Filter = Box<dyn FnMut(&DirEntry) -> bool + Send>;
+
 /// Starts a scan. Items are produced lazily: stop iterating to cancel.
-pub fn scan(root: &Path) -> Result<Scan, ScanError> {
+/// `excluded` folders are skipped entirely, e.g. Parallaxe's own data directory.
+pub fn scan(root: &Path, excluded: &[PathBuf]) -> Result<Scan, ScanError> {
     if !root.is_dir() {
         return Err(ScanError::RootUnavailable);
     }
+    let excluded = excluded.to_vec();
+    let filter: Filter =
+        Box::new(move |entry| is_visible(entry) && !excluded.iter().any(|dir| entry.path() == dir));
     let walker = WalkDir::new(root)
         .follow_links(false)
         .min_depth(1)
         .into_iter()
-        .filter_entry(is_visible as fn(&DirEntry) -> bool);
+        .filter_entry(filter);
     Ok(Scan {
         root: root.to_path_buf(),
         walker,
@@ -60,7 +66,7 @@ pub fn scan(root: &Path) -> Result<Scan, ScanError> {
 
 pub struct Scan {
     root: PathBuf,
-    walker: walkdir::FilterEntry<walkdir::IntoIter, fn(&DirEntry) -> bool>,
+    walker: walkdir::FilterEntry<walkdir::IntoIter, Filter>,
 }
 
 impl Iterator for Scan {
@@ -140,7 +146,7 @@ mod tests {
     use super::*;
 
     fn files(root: &Path) -> Vec<ScannedFile> {
-        let mut found: Vec<ScannedFile> = scan(root)
+        let mut found: Vec<ScannedFile> = scan(root, &[])
             .unwrap()
             .filter_map(|item| match item {
                 ScanItem::File(file) => Some(file),
@@ -200,6 +206,27 @@ mod tests {
     }
 
     #[test]
+    fn skips_excluded_folders() {
+        let dir = tempfile::tempdir().unwrap();
+        let data = dir
+            .path()
+            .join("Application Support")
+            .join("app.parallaxe.desktop");
+        fs::create_dir_all(&data).unwrap();
+        fs::write(data.join("catalog.db"), "x").unwrap();
+        fs::write(dir.path().join("rock.glb"), "x").unwrap();
+
+        let names: Vec<String> = scan(dir.path(), &[data])
+            .unwrap()
+            .filter_map(|item| match item {
+                ScanItem::File(file) => Some(file.filename),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(names, ["rock.glb"]);
+    }
+
+    #[test]
     fn handles_files_without_extension() {
         let dir = tempfile::tempdir().unwrap();
         fs::write(dir.path().join("LICENSE"), "x").unwrap();
@@ -212,14 +239,14 @@ mod tests {
     #[test]
     fn an_empty_root_yields_nothing() {
         let dir = tempfile::tempdir().unwrap();
-        assert_eq!(scan(dir.path()).unwrap().count(), 0);
+        assert_eq!(scan(dir.path(), &[]).unwrap().count(), 0);
     }
 
     #[test]
     fn refuses_a_missing_root() {
         let dir = tempfile::tempdir().unwrap();
         assert_eq!(
-            scan(&dir.path().join("unplugged")).err(),
+            scan(&dir.path().join("unplugged"), &[]).err(),
             Some(ScanError::RootUnavailable)
         );
     }
@@ -229,7 +256,7 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         let file = dir.path().join("a.png");
         fs::write(&file, "x").unwrap();
-        assert_eq!(scan(&file).err(), Some(ScanError::RootUnavailable));
+        assert_eq!(scan(&file, &[]).err(), Some(ScanError::RootUnavailable));
     }
 
     #[test]
@@ -238,7 +265,7 @@ mod tests {
         for i in 0..50 {
             fs::write(dir.path().join(format!("{i}.png")), "x").unwrap();
         }
-        assert_eq!(scan(dir.path()).unwrap().take(5).count(), 5);
+        assert_eq!(scan(dir.path(), &[]).unwrap().take(5).count(), 5);
     }
 
     #[cfg(unix)]
@@ -250,7 +277,7 @@ mod tests {
         std::os::unix::fs::symlink(outside.path(), dir.path().join("escape")).unwrap();
         std::os::unix::fs::symlink(dir.path(), dir.path().join("loop")).unwrap();
 
-        let items: Vec<ScanItem> = scan(dir.path()).unwrap().collect();
+        let items: Vec<ScanItem> = scan(dir.path(), &[]).unwrap().collect();
         assert_eq!(items.len(), 2);
         assert!(items.iter().all(|item| matches!(
             item,
@@ -272,7 +299,7 @@ mod tests {
         fs::write(dir.path().join("visible.png"), "x").unwrap();
         fs::set_permissions(&locked, fs::Permissions::from_mode(0o000)).unwrap();
 
-        let items: Vec<ScanItem> = scan(dir.path()).unwrap().collect();
+        let items: Vec<ScanItem> = scan(dir.path(), &[]).unwrap().collect();
         fs::set_permissions(&locked, fs::Permissions::from_mode(0o755)).unwrap();
 
         assert!(items.contains(&ScanItem::Unreadable {
