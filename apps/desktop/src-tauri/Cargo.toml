@@ -21,13 +21,16 @@ tauri-build = { version = "2", features = [] }
 parallaxe-catalog.workspace = true
 parallaxe-core = { workspace = true, features = ["ts"] }
 parallaxe-indexer.workspace = true
+parallaxe-preview.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 tauri = { version = "2", features = [] }
 tauri-plugin-dialog = "2.8"
+tokio = { version = "1", features = ["sync"] }
 ts-rs.workspace = true
 
 [dev-dependencies]
+image.workspace = true
 tempfile.workspace = true
 
 [lints]

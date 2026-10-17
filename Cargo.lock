@@ -2261,15 +2261,18 @@ dependencies = [
 name = "parallaxe-desktop"
 version = "0.0.0"
 dependencies = [
+ "image",
  "parallaxe-catalog",
  "parallaxe-core",
  "parallaxe-indexer",
+ "parallaxe-preview",
  "serde",
  "serde_json",
  "tauri",
  "tauri-build",
  "tauri-plugin-dialog",
  "tempfile",
+ "tokio",
  "ts-rs",
 ]
 

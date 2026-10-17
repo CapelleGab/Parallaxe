@@ -6,27 +6,55 @@ use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use parallaxe_catalog::{Catalog, CatalogError};
 use parallaxe_core::error::{CoreError, ErrorCode};
 use parallaxe_core::id::RootId;
+use parallaxe_preview::ThumbnailCache;
+use tokio::sync::Semaphore;
+
+use crate::thumbnails::load_thumbnail;
+
+/// Decoding big images is memory hungry: keep only a few in flight.
+const PARALLEL_THUMBNAILS: usize = 4;
 
 pub struct AppState {
     catalog: Arc<Mutex<Catalog>>,
-    data_dir: PathBuf,
+    excluded_dirs: Vec<PathBuf>,
     scans: Arc<Mutex<HashMap<RootId, Arc<AtomicBool>>>>,
+    thumbnails: Arc<ThumbnailCache>,
+    thumbnail_slots: Arc<Semaphore>,
 }
 
 impl AppState {
     /// The catalog lives in the app data directory, never inside a user root.
-    pub fn open(data_dir: &Path) -> Result<Self, Box<dyn std::error::Error>> {
+    /// Caches live in the app cache directory. Both are excluded from scans.
+    pub fn open(data_dir: &Path, cache_dir: &Path) -> Result<Self, Box<dyn std::error::Error>> {
         std::fs::create_dir_all(data_dir)?;
+        std::fs::create_dir_all(cache_dir)?;
         let catalog = Catalog::open(data_dir.join("catalog.db"))?;
-        Ok(Self::new(catalog, std::fs::canonicalize(data_dir)?))
+        Ok(Self::new(
+            catalog,
+            std::fs::canonicalize(data_dir)?,
+            std::fs::canonicalize(cache_dir)?,
+        ))
     }
 
-    fn new(catalog: Catalog, data_dir: PathBuf) -> Self {
+    fn new(catalog: Catalog, data_dir: PathBuf, cache_dir: PathBuf) -> Self {
         Self {
             catalog: Arc::new(Mutex::new(catalog)),
-            data_dir,
+            thumbnails: Arc::new(ThumbnailCache::new(cache_dir.join("thumbnails"))),
+            excluded_dirs: vec![data_dir, cache_dir],
             scans: Arc::default(),
+            thumbnail_slots: Arc::new(Semaphore::new(PARALLEL_THUMBNAILS)),
         }
+    }
+
+    /// PNG bytes of an asset's thumbnail, or `None` when it has no preview.
+    pub async fn thumbnail(&self, asset_id: String) -> Option<Vec<u8>> {
+        let _slot = self.thumbnail_slots.acquire().await.ok()?;
+        let catalog = self.catalog();
+        let cache = Arc::clone(&self.thumbnails);
+        tauri::async_runtime::spawn_blocking(move || load_thumbnail(&catalog, &cache, &asset_id))
+            .await
+            .ok()
+            .flatten()
     }
 
     pub fn catalog(&self) -> Arc<Mutex<Catalog>> {
@@ -35,7 +63,7 @@ impl AppState {
 
     /// Folders a scan must never enter.
     pub fn excluded_dirs(&self) -> Vec<PathBuf> {
-        vec![self.data_dir.clone()]
+        self.excluded_dirs.clone()
     }
 
     /// Registers a scan of `root`. Returns `None` if that root is already being scanned.
@@ -109,7 +137,11 @@ impl Drop for ScanRegistration {
 #[cfg(test)]
 impl AppState {
     pub fn in_memory() -> Self {
-        Self::new(Catalog::open_in_memory().unwrap(), std::env::temp_dir())
+        Self::new(
+            Catalog::open_in_memory().unwrap(),
+            std::env::temp_dir(),
+            std::env::temp_dir(),
+        )
     }
 }
 
@@ -121,9 +153,11 @@ mod tests {
     fn creates_the_catalog_in_the_data_directory() {
         let dir = tempfile::tempdir().unwrap();
         let data_dir = dir.path().join("nested").join("app");
+        let cache_dir = dir.path().join("cache");
 
-        AppState::open(&data_dir).unwrap();
+        let state = AppState::open(&data_dir, &cache_dir).unwrap();
         assert!(data_dir.join("catalog.db").exists());
+        assert_eq!(state.excluded_dirs().len(), 2);
     }
 
     #[test]
