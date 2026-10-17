@@ -1,3 +1,5 @@
+use std::path::{Component, PathBuf};
+
 use parallaxe_core::asset::{Asset, ScannedFile};
 use parallaxe_core::id::{AssetId, LibraryId, RootId};
 use parallaxe_core::path;
@@ -20,7 +22,43 @@ pub struct ScanOutcome {
     pub missing: usize,
 }
 
+/// An asset with the absolute path of its file.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AssetSource {
+    pub asset: Asset,
+    pub path: PathBuf,
+}
+
 impl Catalog {
+    /// Resolves an asset to its file. The path is guaranteed to stay inside its root.
+    pub fn asset_source(&self, id: AssetId) -> Result<AssetSource, CatalogError> {
+        let (asset, root_path) = self
+            .conn()
+            .query_row(
+                "SELECT a.id, a.root_id, a.rel_path, a.filename, a.ext, a.kind, a.size_bytes,
+                        a.mtime, a.status, a.is_favorite, r.path
+                 FROM assets a JOIN roots r ON r.id = a.root_id WHERE a.id = ?1",
+                [id.to_string()],
+                |row| Ok((asset_from_row(row)?, path::from_bytes(row.get(10)?))),
+            )
+            .optional()?
+            .ok_or(CatalogError::NotFound("asset"))?;
+
+        let escapes = asset
+            .rel_path
+            .components()
+            .any(|part| !matches!(part, Component::Normal(_)));
+        if escapes {
+            return Err(CatalogError::InvalidArgument(
+                "asset path leaves its folder".into(),
+            ));
+        }
+        Ok(AssetSource {
+            path: root_path.join(&asset.rel_path),
+            asset,
+        })
+    }
+
     pub fn begin_scan(&self, root_id: RootId) -> Result<ScanSession, CatalogError> {
         let generation = self
             .conn()
@@ -324,6 +362,34 @@ mod tests {
             f.catalog.list_assets(f.library, 4_990, 100).unwrap().len(),
             10
         );
+    }
+
+    #[test]
+    fn resolves_an_asset_to_its_file() {
+        let mut f = Fixture::new();
+        scan(&mut f, &[file("textures/oak.png", 1)]);
+        let id = f.catalog.list_assets(f.library, 0, 1).unwrap()[0].id;
+        let root = f.catalog.root(f.root).unwrap();
+
+        let source = f.catalog.asset_source(id).unwrap();
+        assert_eq!(source.path, root.path.join("textures").join("oak.png"));
+        assert_eq!(source.asset.id, id);
+        assert!(matches!(
+            f.catalog.asset_source(AssetId::new()),
+            Err(CatalogError::NotFound("asset"))
+        ));
+    }
+
+    #[test]
+    fn refuses_paths_that_would_leave_the_root() {
+        let mut f = Fixture::new();
+        scan(&mut f, &[file("../../secret.png", 1)]);
+        let id = f.catalog.list_assets(f.library, 0, 1).unwrap()[0].id;
+
+        assert!(matches!(
+            f.catalog.asset_source(id),
+            Err(CatalogError::InvalidArgument(_))
+        ));
     }
 
     #[test]

@@ -14,7 +14,7 @@ mod schema_tests;
 #[cfg(test)]
 mod test_support;
 
-pub use assets::{ScanOutcome, ScanSession};
+pub use assets::{AssetSource, ScanOutcome, ScanSession};
 pub use catalog::Catalog;
 pub use error::CatalogError;
 pub use migrations::SCHEMA_VERSION;
