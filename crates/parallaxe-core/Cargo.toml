@@ -11,7 +11,11 @@ authors.workspace = true
 [dependencies]
 serde.workspace = true
 thiserror.workspace = true
+ts-rs = { workspace = true, optional = true }
 uuid.workspace = true
+
+[features]
+ts = ["dep:ts-rs"]
 
 [dev-dependencies]
 serde_json.workspace = true

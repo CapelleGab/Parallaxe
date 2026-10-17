@@ -1,6 +1,7 @@
 use serde::Serialize;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS), ts(export, rename = "IpcErrorCode"))]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ErrorCode {
     InvalidArgument,
@@ -26,6 +27,7 @@ impl ErrorCode {
 
 /// Error shape shared by every IPC command. Never carries file contents.
 #[derive(Debug, Clone, PartialEq, Serialize, thiserror::Error)]
+#[cfg_attr(feature = "ts", derive(ts_rs::TS), ts(export, rename = "IpcError"))]
 #[error("{code:?}: {message}")]
 pub struct CoreError {
     pub code: ErrorCode,

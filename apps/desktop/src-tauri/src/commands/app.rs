@@ -1,6 +1,8 @@
 use serde::Serialize;
+use ts_rs::TS;
 
-#[derive(Debug, Serialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, PartialEq, Eq, TS)]
+#[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct AppInfo {
     name: &'static str,

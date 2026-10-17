@@ -9,3 +9,4 @@ LICENSE
 CODE_OF_CONDUCT.md
 apps/desktop/src-tauri/gen/
 apps/desktop/src-tauri/icons/
+apps/desktop/src/ipc/bindings/

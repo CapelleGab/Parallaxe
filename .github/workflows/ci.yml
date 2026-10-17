@@ -58,6 +58,9 @@ jobs:
       - run: cargo fmt --all --check
       - run: cargo clippy --workspace --all-targets -- -D warnings
       - run: cargo test --workspace
+      - name: Check TypeScript bindings are up to date
+        if: runner.os == 'Linux'
+        run: git diff --exit-code -- apps/desktop/src/ipc/bindings
 
   rust-coverage:
     name: Rust coverage

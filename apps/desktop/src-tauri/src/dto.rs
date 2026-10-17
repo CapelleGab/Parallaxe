@@ -2,8 +2,10 @@
 
 use parallaxe_core::library::{Library, Root, RootStatus};
 use serde::Serialize;
+use ts_rs::TS;
 
-#[derive(Debug, Serialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, PartialEq, Eq, TS)]
+#[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct LibraryDto {
     pub id: String,
@@ -21,14 +23,16 @@ impl From<Library> for LibraryDto {
     }
 }
 
-#[derive(Debug, Serialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, PartialEq, Eq, TS)]
+#[ts(export)]
 #[serde(rename_all = "snake_case")]
 pub enum RootStatusDto {
     Available,
     Offline,
 }
 
-#[derive(Debug, Serialize, PartialEq, Eq)]
+#[derive(Debug, Serialize, PartialEq, Eq, TS)]
+#[ts(export)]
 #[serde(rename_all = "camelCase")]
 pub struct RootDto {
     pub id: String,
