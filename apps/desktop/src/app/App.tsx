@@ -1,28 +1,53 @@
 import { useEffect, useState } from "react";
-import { Logo } from "../components/Logo";
-import { getAppInfo, type AppInfo } from "../ipc/client";
+import { ErrorPanel } from "../components/ErrorPanel";
+import { FirstRun } from "../features/library/FirstRun";
+import { LibraryHome } from "../features/library/LibraryHome";
+import { errorMessage, listLibraries, type LibraryDto } from "../ipc/client";
+
+type State =
+  | { status: "loading" }
+  | { status: "failed"; message: string }
+  | { status: "ready"; library: LibraryDto | null };
 
 export function App() {
-  const [info, setInfo] = useState<AppInfo | null>(null);
+  const [state, setState] = useState<State>({ status: "loading" });
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
-    getAppInfo()
-      .then(setInfo)
-      .catch(() => setInfo(null));
-  }, []);
+    let current = true;
+    listLibraries()
+      .then((libraries) => current && setState({ status: "ready", library: libraries[0] ?? null }))
+      .catch(
+        (failure: unknown) =>
+          current && setState({ status: "failed", message: errorMessage(failure) }),
+      );
+    // ignore a response that arrives after a newer attempt or an unmount
+    return () => {
+      current = false;
+    };
+  }, [attempt]);
 
-  return (
-    <main className="flex h-full flex-col items-center justify-center gap-6 p-8 text-center">
-      <Logo className="size-16 text-accent" />
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Parallaxe</h1>
-        <p className="max-w-md text-base text-fg-muted">
-          Parallaxe indexes your folders. It never moves, renames or modifies your files.
-        </p>
-      </div>
-      <p className="rounded-md border border-border bg-surface px-3 py-1.5 font-mono text-xs text-fg-muted">
-        {info ? `v${info.version} · core ${info.coreVersion}` : "Development build"}
-      </p>
-    </main>
-  );
+  function retry() {
+    setState({ status: "loading" });
+    setAttempt((n) => n + 1);
+  }
+
+  switch (state.status) {
+    case "loading":
+      return <main aria-busy="true" className="h-full" />;
+    case "failed":
+      return (
+        <main className="flex h-full items-center justify-center p-8">
+          <div className="w-full max-w-md">
+            <ErrorPanel message={state.message} onRetry={retry} />
+          </div>
+        </main>
+      );
+    case "ready":
+      return state.library ? (
+        <LibraryHome library={state.library} />
+      ) : (
+        <FirstRun onCreated={(library) => setState({ status: "ready", library })} />
+      );
+  }
 }

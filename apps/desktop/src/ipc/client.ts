@@ -44,3 +44,8 @@ export function listRoots(libraryId: string): Promise<RootDto[]> {
 export function addRoot(libraryId: string): Promise<RootDto | null> {
   return call("library_add_root", { libraryId });
 }
+
+/** Message safe to show to the user, whatever the rejection was. */
+export function errorMessage(error: unknown): string {
+  return isIpcError(error) ? error.message : "Something went wrong. Please try again.";
+}

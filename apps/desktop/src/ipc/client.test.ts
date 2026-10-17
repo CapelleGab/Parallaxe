@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   addRoot,
   createLibrary,
+  errorMessage,
   getAppInfo,
   isIpcError,
   listLibraries,
@@ -58,4 +59,16 @@ describe("isIpcError", () => {
       expect(isIpcError(value)).toBe(false);
     },
   );
+});
+
+describe("errorMessage", () => {
+  it("uses the backend message", () => {
+    expect(errorMessage(conflict)).toBe("This item already exists.");
+  });
+
+  it("hides unexpected details", () => {
+    expect(errorMessage(new Error("SQLITE_BUSY at /Users/me/secret"))).toBe(
+      "Something went wrong. Please try again.",
+    );
+  });
 });
