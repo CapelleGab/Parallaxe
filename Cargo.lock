@@ -2213,6 +2213,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "parallaxe-indexer"
+version = "0.0.0"
+dependencies = [
+ "parallaxe-core",
+ "tempfile",
+ "thiserror 2.0.21",
+ "walkdir",
+]
+
+[[package]]
 name = "parking_lot"
 version = "0.12.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
