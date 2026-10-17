@@ -9,6 +9,8 @@ const ipc = vi.hoisted(() => ({
   createLibraryWithFolder: vi.fn(),
   listRoots: vi.fn(),
   addRoot: vi.fn(),
+  listAssets: vi.fn(),
+  startScan: vi.fn(),
 }));
 
 vi.mock("../ipc/client", async (importOriginal) => ({
@@ -22,6 +24,7 @@ describe("App", () => {
   beforeEach(() => {
     Object.values(ipc).forEach((mock) => mock.mockReset());
     ipc.listRoots.mockResolvedValue([]);
+    ipc.listAssets.mockResolvedValue({ items: [], total: 0 });
   });
 
   it("asks for a library name on first run", async () => {

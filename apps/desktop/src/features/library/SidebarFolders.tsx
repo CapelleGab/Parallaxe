@@ -4,9 +4,10 @@ import { splitPath } from "../../lib/path";
 
 type SidebarFoldersProps = {
   roots: RootDto[];
+  scanning?: string[];
 };
 
-export function SidebarFolders({ roots }: SidebarFoldersProps) {
+export function SidebarFolders({ roots, scanning = [] }: SidebarFoldersProps) {
   return (
     <nav aria-label="Library folders" className="flex flex-col gap-0.5 px-3">
       {roots.map((root) => {
@@ -19,8 +20,12 @@ export function SidebarFolders({ roots }: SidebarFoldersProps) {
           >
             <Icon className="size-4 shrink-0" />
             <span className="truncate">{splitPath(root.path).name}</span>
-            {root.status === "offline" && (
-              <span className="ml-auto shrink-0 text-xs text-warning">Offline</span>
+            {scanning.includes(root.id) ? (
+              <span className="ml-auto shrink-0 text-xs text-accent">Scanning</span>
+            ) : (
+              root.status === "offline" && (
+                <span className="ml-auto shrink-0 text-xs text-warning">Offline</span>
+              )
             )}
           </div>
         );

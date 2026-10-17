@@ -11,3 +11,4 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Project scaffolding: desktop app skeleton, Rust workspace, documentation site.
 - Local SQLite catalog with versioned migrations, stored in the app data directory.
 - First run: name a library and choose or create its library folder; external folders can be added and are referenced in place.
+- Folders are scanned in the background with live progress and cancel; files appear in a grid by type, and files removed from disk are flagged as missing, never deleted.
