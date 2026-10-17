@@ -1,0 +1,19 @@
+[package]
+name = "parallaxe-preview"
+description = "Thumbnails for Parallaxe assets, kept in a bounded cache outside user folders."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+image.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true
