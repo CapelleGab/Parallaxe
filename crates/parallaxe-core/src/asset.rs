@@ -1,4 +1,28 @@
+use std::path::PathBuf;
+use std::str::FromStr;
+
 use serde::{Deserialize, Serialize};
+
+use crate::id::{AssetId, RootId};
+
+#[derive(Debug, Clone, PartialEq, Eq, thiserror::Error)]
+#[error("unknown value {0:?}")]
+pub struct UnknownValue(pub String);
+
+/// A cataloged file. `rel_path` is relative to its root.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Asset {
+    pub id: AssetId,
+    pub root_id: RootId,
+    pub rel_path: PathBuf,
+    pub filename: String,
+    pub ext: String,
+    pub kind: AssetKind,
+    pub size_bytes: u64,
+    pub mtime_ms: Option<i64>,
+    pub status: AssetStatus,
+    pub is_favorite: bool,
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -11,6 +35,24 @@ pub enum AssetKind {
 }
 
 impl AssetKind {
+    pub const ALL: [Self; 5] = [
+        Self::Image,
+        Self::Audio,
+        Self::Video,
+        Self::Model3d,
+        Self::Other,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Image => "image",
+            Self::Audio => "audio",
+            Self::Video => "video",
+            Self::Model3d => "model3d",
+            Self::Other => "other",
+        }
+    }
+
     /// Guess from the extension only; content sniffing refines it later.
     pub fn from_extension(ext: &str) -> Self {
         match ext.to_ascii_lowercase().as_str() {
@@ -33,10 +75,50 @@ pub enum AssetStatus {
     Error,
 }
 
+impl FromStr for AssetKind {
+    type Err = UnknownValue;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::ALL
+            .into_iter()
+            .find(|kind| kind.as_str() == s)
+            .ok_or_else(|| UnknownValue(s.to_owned()))
+    }
+}
+
 impl AssetStatus {
+    pub const ALL: [Self; 5] = [
+        Self::Available,
+        Self::Missing,
+        Self::RootOffline,
+        Self::Unsupported,
+        Self::Error,
+    ];
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Available => "available",
+            Self::Missing => "missing",
+            Self::RootOffline => "root_offline",
+            Self::Unsupported => "unsupported",
+            Self::Error => "error",
+        }
+    }
+
     /// Annotations are never dropped automatically, whatever the status.
     pub fn is_readable(self) -> bool {
         matches!(self, Self::Available | Self::Unsupported)
+    }
+}
+
+impl FromStr for AssetStatus {
+    type Err = UnknownValue;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Self::ALL
+            .into_iter()
+            .find(|status| status.as_str() == s)
+            .ok_or_else(|| UnknownValue(s.to_owned()))
     }
 }
 
@@ -65,6 +147,29 @@ mod tests {
         assert_eq!(json, "\"root_offline\"");
         let json = serde_json::to_string(&AssetKind::Model3d).unwrap();
         assert_eq!(json, "\"model3d\"");
+    }
+
+    #[test]
+    fn text_form_matches_serde_and_round_trips() {
+        for kind in AssetKind::ALL {
+            let json = serde_json::to_value(kind).unwrap();
+            assert_eq!(json, kind.as_str());
+            assert_eq!(kind.as_str().parse::<AssetKind>().unwrap(), kind);
+        }
+        for status in AssetStatus::ALL {
+            let json = serde_json::to_value(status).unwrap();
+            assert_eq!(json, status.as_str());
+            assert_eq!(status.as_str().parse::<AssetStatus>().unwrap(), status);
+        }
+    }
+
+    #[test]
+    fn rejects_unknown_text() {
+        assert_eq!(
+            "deleted".parse::<AssetStatus>(),
+            Err(UnknownValue("deleted".into()))
+        );
+        assert!("mesh".parse::<AssetKind>().is_err());
     }
 
     #[test]
