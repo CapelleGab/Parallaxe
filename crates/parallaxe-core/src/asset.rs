@@ -9,6 +9,19 @@ use crate::id::{AssetId, RootId};
 #[error("unknown value {0:?}")]
 pub struct UnknownValue(pub String);
 
+/// What a scan observed about a file on disk.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ScannedFile {
+    /// Relative to the root, so a root can move without touching its assets.
+    pub rel_path: PathBuf,
+    pub filename: String,
+    /// Lowercase, without the dot. Empty when the file has none.
+    pub ext: String,
+    pub kind: AssetKind,
+    pub size_bytes: u64,
+    pub mtime_ms: Option<i64>,
+}
+
 /// A cataloged file. `rel_path` is relative to its root.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Asset {

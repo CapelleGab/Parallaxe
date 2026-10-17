@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use std::time::UNIX_EPOCH;
 
 use parallaxe_core::asset::AssetKind;
+pub use parallaxe_core::asset::ScannedFile;
 use walkdir::{DirEntry, WalkDir};
 
 /// Names that are never cataloged, on top of hidden entries.
@@ -13,18 +14,6 @@ const IGNORED_NAMES: &[&str] = &[
     "$RECYCLE.BIN",
     "System Volume Information",
 ];
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ScannedFile {
-    /// Relative to the root, so a root can move without touching its assets.
-    pub rel_path: PathBuf,
-    pub filename: String,
-    /// Lowercase, without the dot. Empty when the file has none.
-    pub ext: String,
-    pub kind: AssetKind,
-    pub size_bytes: u64,
-    pub mtime_ms: Option<i64>,
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SkipReason {
