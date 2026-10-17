@@ -13,8 +13,13 @@ vi.mock("../../ipc/client", async (importOriginal) => ({
 
 const library: LibraryDto = { id: "lib-1", name: "Game assets", createdAt: 0 };
 
-function root(id: string, path: string, status: RootDto["status"] = "available"): RootDto {
-  return { id, libraryId: library.id, path, status, isPrimary: false, lastSeenAt: null };
+function root(
+  id: string,
+  path: string,
+  status: RootDto["status"] = "available",
+  isPrimary = false,
+): RootDto {
+  return { id, libraryId: library.id, path, status, isPrimary, lastSeenAt: null };
 }
 
 describe("LibraryHome", () => {
@@ -36,7 +41,7 @@ describe("LibraryHome", () => {
 
   it("lists folders with their status", async () => {
     ipc.listRoots.mockResolvedValue([
-      root("r1", "/data/textures"),
+      root("r1", "/data/textures", "available", true),
       root("r2", "/Volumes/External/sounds", "offline"),
     ]);
     render(<LibraryHome library={library} />);
@@ -44,8 +49,10 @@ describe("LibraryHome", () => {
     const items = within(await screen.findByRole("list", { name: "Folders" })).getAllByRole(
       "listitem",
     );
+    expect(items[0]).toHaveTextContent("Library folder");
     expect(items[0]).toHaveTextContent("/data/textures");
     expect(items[0]).toHaveTextContent("Available");
+    expect(items[1]).toHaveTextContent("External folder");
     expect(items[1]).toHaveTextContent("Offline");
   });
 
@@ -54,7 +61,7 @@ describe("LibraryHome", () => {
     ipc.addRoot.mockResolvedValue(root("r1", "/data/textures"));
     render(<LibraryHome library={library} />);
 
-    await userEvent.click(await screen.findByRole("button", { name: "Add folder" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Add external folder" }));
 
     expect(ipc.addRoot).toHaveBeenCalledWith("lib-1");
     expect(await screen.findByText("/data/textures")).toBeInTheDocument();
@@ -68,7 +75,7 @@ describe("LibraryHome", () => {
     ipc.addRoot.mockResolvedValue(null);
     render(<LibraryHome library={library} />);
 
-    await userEvent.click(await screen.findByRole("button", { name: "Add folder" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Add external folder" }));
 
     expect(
       await screen.findByRole("heading", { name: "Add your first folder" }),
@@ -85,7 +92,7 @@ describe("LibraryHome", () => {
     });
     render(<LibraryHome library={library} />);
 
-    await userEvent.click(await screen.findByRole("button", { name: "Add folder" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Add external folder" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent("This item already exists.");
     expect(screen.getByText("/data")).toBeInTheDocument();

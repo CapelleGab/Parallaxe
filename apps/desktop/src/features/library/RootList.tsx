@@ -14,9 +14,14 @@ export function RootList({ roots }: RootListProps) {
     <ul aria-label="Folders" className="divide-y divide-border rounded-lg border border-border">
       {roots.map((root) => (
         <li key={root.id} className="flex items-center justify-between gap-4 px-4 py-3">
-          <span className="truncate font-mono text-xs select-text" title={root.path}>
-            {root.path}
-          </span>
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="text-xs font-medium text-fg-muted">
+              {root.isPrimary ? "Library folder" : "External folder"}
+            </span>
+            <span className="truncate font-mono text-xs select-text" title={root.path}>
+              {root.path}
+            </span>
+          </div>
           <span
             className={
               root.status === "available"

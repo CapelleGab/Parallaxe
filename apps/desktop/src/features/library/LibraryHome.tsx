@@ -37,8 +37,8 @@ export function LibraryHome({ library }: LibraryHomeProps) {
   }
 
   const addButton = (
-    <AppButton onClick={add} loading={adding}>
-      Add folder
+    <AppButton variant="secondary" onClick={add} loading={adding}>
+      Add external folder
     </AppButton>
   );
 
