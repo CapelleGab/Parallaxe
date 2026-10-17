@@ -5,7 +5,7 @@
   "identifier": "app.parallaxe.desktop",
   "build": {
     "beforeDevCommand": "pnpm vite:dev",
-    "devUrl": "http://localhost:1420",
+    "devUrl": "http://localhost:5420",
     "beforeBuildCommand": "pnpm vite:build",
     "frontendDist": "../dist"
   },

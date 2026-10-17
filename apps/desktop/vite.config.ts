@@ -9,10 +9,10 @@ export default defineConfig({
   // keep Rust errors visible in the terminal
   clearScreen: false,
   server: {
-    port: 1420,
+    port: 5420,
     strictPort: true,
     host: host || false,
-    hmr: host ? { protocol: "ws", host, port: 1421 } : undefined,
+    hmr: host ? { protocol: "ws", host, port: 5421 } : undefined,
     watch: { ignored: ["**/src-tauri/**"] },
   },
   build: {
