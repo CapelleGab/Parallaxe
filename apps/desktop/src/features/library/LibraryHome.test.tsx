@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type {
@@ -17,6 +17,10 @@ const ipc = vi.hoisted(() => ({
   listAssets: vi.fn(),
   startScan: vi.fn(),
   cancelScan: vi.fn(),
+}));
+
+vi.mock("@tauri-apps/api/core", () => ({
+  convertFileSrc: (path: string, protocol: string) => `${protocol}://localhost/${path}`,
 }));
 
 vi.mock("../../ipc/client", async (importOriginal) => ({
@@ -182,17 +186,37 @@ describe("LibraryHome", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("This item already exists.");
   });
 
-  it("loads more files on request", async () => {
+  it("only loads the pages on screen", async () => {
     ipc.listRoots.mockResolvedValue([root("r1", "/art/Game assets")]);
-    ipc.listAssets.mockResolvedValueOnce(page([asset("a1", "oak.png")], 2));
-    ipc.listAssets.mockResolvedValueOnce(page([asset("a2", "pine.png")], 2));
+    const firstPage = Array.from({ length: 200 }, (_, i) => asset(`a${i}`, `${i}.png`));
+    ipc.listAssets.mockResolvedValue(page(firstPage, 50_000));
     render(<LibraryHome library={library} />);
 
-    await userEvent.click(await screen.findByRole("button", { name: "Show more" }));
+    expect(await screen.findByText("50,000 files in 1 folder")).toBeInTheDocument();
+    const tiles = within(screen.getByRole("list", { name: "Files" })).getAllByRole("listitem");
+    expect(tiles.length).toBeLessThan(200);
+    expect(ipc.listAssets).toHaveBeenCalledTimes(1);
+  });
 
-    expect(await screen.findByText("pine.png")).toBeInTheDocument();
-    expect(ipc.listAssets).toHaveBeenLastCalledWith("lib-1", 1, 200);
-    expect(screen.queryByRole("button", { name: "Show more" })).not.toBeInTheDocument();
+  it("loads the next pages while scrolling", async () => {
+    ipc.listRoots.mockResolvedValue([root("r1", "/art/Game assets")]);
+    ipc.listAssets.mockImplementation((_id: string, offset: number) =>
+      Promise.resolve(
+        page(
+          Array.from({ length: 200 }, (_, i) => asset(`a${offset + i}`, `${offset + i}.png`)),
+          50_000,
+        ),
+      ),
+    );
+    render(<LibraryHome library={library} />);
+
+    const grid = await screen.findByRole("list", { name: "Files" });
+    const scroller = grid.parentElement as HTMLElement;
+    scroller.scrollTop = 20_000;
+    fireEvent.scroll(scroller);
+
+    await waitFor(() => expect(ipc.listAssets).toHaveBeenCalledWith("lib-1", 600, 200));
+    expect(await screen.findByText("720.png")).toBeInTheDocument();
   });
 
   it("explains an empty library folder", async () => {

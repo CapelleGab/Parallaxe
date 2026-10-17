@@ -10,6 +10,7 @@ import {
   listRoots,
   startScan,
   type AssetDto,
+  type AssetPageDto,
   type LibraryDto,
   type RootDto,
   type ScanProgressDto,
@@ -30,18 +31,50 @@ type LibraryHomeProps = {
 
 export function LibraryHome({ library }: LibraryHomeProps) {
   const [roots, setRoots] = useState<RootDto[] | null>(null);
-  const [assets, setAssets] = useState<AssetDto[]>([]);
+  const [pages, setPages] = useState<Record<number, AssetDto[]>>({});
   const [total, setTotal] = useState<number | null>(null);
   const [scans, setScans] = useState<Record<string, ScanProgressDto>>({});
   const [adding, setAdding] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const autoScanned = useRef(false);
+  const loadingPages = useRef(new Set<number>());
+  // bumped on every reload so answers to older requests are ignored
+  const generation = useRef(0);
+
+  const applyFirstPage = useCallback((page: AssetPageDto) => {
+    generation.current += 1;
+    loadingPages.current.clear();
+    setPages({ 0: page.items });
+    setTotal(page.total);
+  }, []);
 
   const reloadAssets = useCallback(async () => {
-    const page = await listAssets(library.id, 0, PAGE_SIZE);
-    setAssets(page.items);
-    setTotal(page.total);
-  }, [library.id]);
+    applyFirstPage(await listAssets(library.id, 0, PAGE_SIZE));
+  }, [library.id, applyFirstPage]);
+
+  const loadRange = useCallback(
+    (start: number, end: number) => {
+      const requested = generation.current;
+      for (let page = Math.floor(start / PAGE_SIZE); page * PAGE_SIZE < end; page += 1) {
+        if (pages[page] || loadingPages.current.has(page)) continue;
+        loadingPages.current.add(page);
+        listAssets(library.id, page * PAGE_SIZE, PAGE_SIZE)
+          .then((result) => {
+            if (requested !== generation.current) return;
+            setPages((current) => ({ ...current, [page]: result.items }));
+            setTotal(result.total);
+          })
+          .catch((failure: unknown) => setError(errorMessage(failure)))
+          .finally(() => loadingPages.current.delete(page));
+      }
+    },
+    [library.id, pages],
+  );
+
+  const assetAt = useCallback(
+    (index: number) => pages[Math.floor(index / PAGE_SIZE)]?.[index % PAGE_SIZE],
+    [pages],
+  );
 
   const scanRoot = useCallback(
     async (root: RootDto) => {
@@ -78,8 +111,7 @@ export function LibraryHome({ library }: LibraryHomeProps) {
       .then(([loadedRoots, page]) => {
         if (!current) return;
         setRoots(loadedRoots);
-        setAssets(page.items);
-        setTotal(page.total);
+        applyFirstPage(page);
         // a library that was never indexed, typically one just created
         if (page.total === 0 && loadedRoots.length > 0 && !autoScanned.current) {
           autoScanned.current = true;
@@ -90,7 +122,7 @@ export function LibraryHome({ library }: LibraryHomeProps) {
     return () => {
       current = false;
     };
-  }, [library.id, scanAll]);
+  }, [library.id, scanAll, applyFirstPage]);
 
   async function add() {
     setAdding(true);
@@ -105,16 +137,6 @@ export function LibraryHome({ library }: LibraryHomeProps) {
       setError(errorMessage(failure));
     } finally {
       setAdding(false);
-    }
-  }
-
-  async function showMore() {
-    try {
-      const page = await listAssets(library.id, assets.length, PAGE_SIZE);
-      setAssets((previous) => [...previous, ...page.items]);
-      setTotal(page.total);
-    } catch (failure) {
-      setError(errorMessage(failure));
     }
   }
 
@@ -150,7 +172,7 @@ export function LibraryHome({ library }: LibraryHomeProps) {
 
       <main className="flex min-w-0 flex-1 flex-col bg-surface">
         <div data-tauri-drag-region className="h-14 shrink-0" />
-        <div className="flex flex-1 flex-col gap-8 overflow-auto px-10 pb-10">
+        <div className="flex shrink-0 flex-col gap-6 px-10 pb-8">
           <header className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <h1 className="font-display text-5xl font-semibold tracking-tight [font-stretch:85%]">
@@ -192,22 +214,9 @@ export function LibraryHome({ library }: LibraryHomeProps) {
             </div>
           )}
 
-          {assets.length > 0 && (
-            <>
-              <AssetGrid assets={assets} />
-              {total !== null && assets.length < total && (
-                <div className="flex justify-center">
-                  <AppButton variant="secondary" onClick={() => void showMore()}>
-                    Show more
-                  </AppButton>
-                </div>
-              )}
-            </>
-          )}
+          {total === 0 && scanning && <ContactSheet />}
 
-          {assets.length === 0 && scanning && <ContactSheet />}
-
-          {assets.length === 0 && !scanning && total === 0 && roots && roots.length > 0 && (
+          {total === 0 && !scanning && roots && roots.length > 0 && (
             <div className="flex flex-col items-start gap-3">
               <h2 className="font-display text-xl font-semibold">No files yet</h2>
               <p className="max-w-md text-fg-muted">
@@ -216,6 +225,10 @@ export function LibraryHome({ library }: LibraryHomeProps) {
             </div>
           )}
         </div>
+
+        {total !== null && total > 0 && (
+          <AssetGrid total={total} assetAt={assetAt} onVisibleRange={loadRange} />
+        )}
       </main>
     </div>
   );
