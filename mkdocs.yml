@@ -92,6 +92,7 @@ nav:
           - project/decisions/0001-monorepo.md
           - project/decisions/0002-no-accounts.md
           - project/decisions/0003-license.md
+          - project/decisions/0004-library-folder.md
   - Contributing:
       - contributing/index.md
       - contributing/setup.md

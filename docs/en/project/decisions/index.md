@@ -7,6 +7,7 @@ Architecture Decision Records capture structural choices: context, options, deci
 | [0001](0001-monorepo.md) | Single monorepo | accepted |
 | [0002](0002-no-accounts.md) | No user accounts | accepted |
 | [0003](0003-license.md) | Apache-2.0 license | accepted |
+| [0004](0004-library-folder.md) | A library lives in a folder | accepted |
 
 ## Expected next
 

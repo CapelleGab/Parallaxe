@@ -3,10 +3,16 @@
 ## Vocabulaire
 
 Bibliothèque
-:   Ensemble logique d'assets indexés. Une bibliothèque contient une ou plusieurs racines.
+:   Un ensemble nommé d'assets indexés. Chaque bibliothèque a un **dossier de bibliothèque** où tu ranges et organises tes assets, et peut référencer des dossiers externes.
+
+Dossier de bibliothèque
+:   Le dossier choisi ou créé à la création de la bibliothèque. Organise-le avec tes propres sous-dossiers. Voir l'[ADR-0004](../project/decisions/0004-library-folder.md).
+
+Dossier externe
+:   Un autre dossier référencé sur place, par exemple un projet de jeu ou Blender que tu ne veux pas déplacer.
 
 Racine
-:   Un dossier que tu as choisi explicitement. Parallaxe le parcourt récursivement et n'écrit jamais dedans.
+:   Le nom technique du dossier de bibliothèque et des dossiers externes. Parallaxe parcourt les racines récursivement et n'écrit jamais dedans.
 
 Asset
 :   Une fiche du catalogue liée à un fichier physique — ou à un fichier temporairement absent.

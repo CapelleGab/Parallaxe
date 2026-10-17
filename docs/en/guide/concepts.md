@@ -3,10 +3,16 @@
 ## Vocabulary
 
 Library
-:   A logical set of indexed assets. A library contains one or more roots.
+:   A set of indexed assets with a name. Each library has a **library folder** where you keep and organize your assets, and may reference external folders.
+
+Library folder
+:   The folder you chose or created when creating the library. Organize it with your own sub-folders. See [ADR-0004](../project/decisions/0004-library-folder.md).
+
+External folder
+:   Another folder referenced in place, for example a game or Blender project you do not want to move.
 
 Root
-:   A folder you explicitly chose. Parallaxe scans it recursively and never writes inside it.
+:   The technical name for the library folder and external folders. Parallaxe scans roots recursively and never writes inside them.
 
 Asset
 :   A catalog entry linked to a physical file — or to a file that is temporarily missing.
