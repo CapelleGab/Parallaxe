@@ -85,6 +85,18 @@ impl Catalog {
         Ok(roots)
     }
 
+    pub fn root(&self, id: RootId) -> Result<Root, CatalogError> {
+        self.conn()
+            .query_row(
+                "SELECT id, library_id, path, status, is_primary, last_seen_at, created_at
+                 FROM roots WHERE id = ?1",
+                [id.to_string()],
+                root_from_row,
+            )
+            .optional()?
+            .ok_or(CatalogError::NotFound("root"))
+    }
+
     /// Removes the folder from the catalog only. Files on disk are never touched.
     pub fn remove_root(&self, id: RootId) -> Result<(), CatalogError> {
         let removed = self
@@ -304,6 +316,20 @@ mod tests {
                 .to_string()
                 .contains("conflict")
         );
+    }
+
+    #[test]
+    fn finds_a_root_by_id() {
+        let mut catalog = Catalog::open_in_memory().unwrap();
+        let (_, folder) = catalog
+            .create_library_with_folder("Games", &absolute("vault"))
+            .unwrap();
+
+        assert_eq!(catalog.root(folder.id).unwrap(), folder);
+        assert!(matches!(
+            catalog.root(RootId::new()),
+            Err(CatalogError::NotFound("root"))
+        ));
     }
 
     #[test]
