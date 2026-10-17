@@ -1,0 +1,19 @@
+[package]
+name = "parallaxe-catalog"
+description = "SQLite catalog of Parallaxe: schema, migrations and queries."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+authors.workspace = true
+
+[dependencies]
+rusqlite.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true
