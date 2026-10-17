@@ -2,7 +2,7 @@ use rusqlite::Connection;
 
 use crate::CatalogError;
 
-const MIGRATIONS: &[&str] = &[];
+const MIGRATIONS: &[&str] = &[include_str!("../migrations/0001_initial.sql")];
 
 pub const SCHEMA_VERSION: usize = MIGRATIONS.len();
 
