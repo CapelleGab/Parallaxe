@@ -9,3 +9,5 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - Project scaffolding: desktop app skeleton, Rust workspace, documentation site.
+- Local SQLite catalog with versioned migrations, stored in the app data directory.
+- First run: create a named library and add folders through the native folder picker.
