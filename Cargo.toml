@@ -16,7 +16,7 @@ parallaxe-core = { path = "crates/parallaxe-core" }
 parallaxe-indexer = { path = "crates/parallaxe-indexer" }
 parallaxe-preview = { path = "crates/parallaxe-preview" }
 image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp", "gif"] }
-rusqlite = { version = "0.40", features = ["bundled"] }
+rusqlite = { version = "0.41", features = ["bundled"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tempfile = "3"
